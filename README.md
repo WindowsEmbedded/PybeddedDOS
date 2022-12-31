@@ -4,7 +4,7 @@
 Python版的EmbeddedDOS
 
 #### 软件架构
-软件架构说明
+?
 
 
 #### 安装教程
@@ -14,11 +14,9 @@ Python版的EmbeddedDOS
 3.  输入指令：git clone https://gitee.com/embedsys-studio/pybedded-dos.git
 4.  输入指令：python3 sys.py
 
-#### 使用说明
+#### 注意事项
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+别用python2
 
 #### 参与贡献
 
