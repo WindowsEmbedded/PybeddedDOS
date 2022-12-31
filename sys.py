@@ -1,4 +1,4 @@
-import sys
+#import sys
 VER = "0.1-alpha"
 dirs = { #目录
 	"/": {
