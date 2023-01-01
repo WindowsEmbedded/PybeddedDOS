@@ -1,5 +1,5 @@
 import sys
-VER = "0.1-alpha"
+VER = "0.11-alpha"
 dirs = { #目录
 	"/": {
 		"system/":"你没有权限",
@@ -12,21 +12,27 @@ dirs = { #目录
 def main():
 	while True: #死循环
 		command = input("fakeroot@localhost $").split()
-		if command[0] == "print":
-			for i in range(1,len(command)):
-				print(
-					command[i].replace("$ver",VER),
-					end=" "
-				)
+		try:
+			if command[0] == "print":
+				for i in range(1,len(command)):
+					print(
+						command[i].replace("$ver",VER),
+						end=" "
+					)
+				else:
+					print() #打印换行
+			elif(command[0] == "exit" or
+				 command[0] == "shutdown" or
+				 command[0] == "quit"
+			):
+				exit(0)
+			elif command[0] == "var":
+				if command[1]=="$VER": VER=command[2]
+				else:print("Isn't a var")
 			else:
-				print() #打印换行
-		elif(command[0] == "exit" or
-			 command[0] == "shutdown" or
-			 command[0] == "quit"
-		):
-			exit(0)
-		else:
-			print("Unknown command")
+				print("Unknown command")
+		except IndexError:
+			print(end="")
 
 if __name__ == "__main__":
 	main()
