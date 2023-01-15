@@ -12,7 +12,7 @@ Python版的EmbeddedDOS
 1.  安装git(如果没有git）
 2.  安装python3（如果没有python）
 3.  输入指令：git clone https://gitee.com/embedsys-studio/pybedded-dos.git
-4.  输入指令：python3 sys.py
+4.  输入指令：python3 system.py
 
 #### 注意事项
 
