@@ -28,4 +28,4 @@ Python版的EmbeddedDOS
 
 #### 特技
 
-无
+支持多用户
