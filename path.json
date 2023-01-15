@@ -1,0 +1,20 @@
+{"/": {
+        "system/": {
+        },
+        "usr/": {
+            "user/": {
+                "home/":{
+                    "Downloads/":{},
+                    "Documents/":{},
+                    "a.txt":"",
+                    "b.txt":"",
+                    "c.txt":""
+                }
+            },"usr2/": {
+                "home/":{
+                    "uehdueryfre/":{}
+                }
+            }
+        }, "bin/": {}
+    }
+}
