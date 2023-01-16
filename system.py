@@ -10,7 +10,7 @@
 """
 import sys
 import json
-VER = "0.11-alpha"
+VER = "0.2.5-beta1"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 dirs = { 
@@ -35,11 +35,22 @@ def GetDirectoryContents(dirname=str()) -> dict: #获取某目录的文件
 
 def IsaDirectory(filename) -> bool: return '/' in filename #判断是否为文件夹 
 
+def newdir(pathname=str(),dirname=str()):
+	global dirs
+	dires = GetDirectoryContents(pathname)
+	dires["%s/"%dirname] = {} #新建空字典
+	with open("path.json",'w') as f: #写入path.json
+		f.write(json.dumps(dirs))
+		f.close()
+	#print(dirs)
+
+
+
 def main():
 	global VER
 	global PWD
 	while True: #死循环
-		command = input("%s@localhost %s$ "%(USERNAME,PWD)).split()
+		command = input("\033[32m%s@localhost\033[0m:\033[36m%s\033[0m$ "%(USERNAME,PWD)).split()
 		try:
 			if command[0] == "print":
 				for i in range(1,len(command)):
@@ -62,7 +73,11 @@ def main():
 					if '/' in key: print("\033[34m%s\033[0m"%key.replace("/",""),end="	")
 					else: print(key,end="	")
 				print()
-					
+			elif(command[0] == "mkdir" or
+				 command[0] == "md" #新建文件夹
+			):
+				#if command[2] == "--absolute-path": newdir(command[1])
+				newdir(PWD,command[1])
 			else:
 				print("Unknown command")
 		except IndexError:
