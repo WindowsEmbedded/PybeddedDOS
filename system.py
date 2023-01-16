@@ -9,8 +9,10 @@
 
 """
 import sys
+#from exeux import *
 import json
-VER = "0.2.5-beta1"
+import socket
+VER = "0.2.7-beta1"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 dirs = { 
@@ -50,7 +52,7 @@ def main():
 	global VER
 	global PWD
 	while True: #死循环
-		command = input("\033[32m%s@localhost\033[0m:\033[36m%s\033[0m$ "%(USERNAME,PWD)).split()
+		command = input("\033[32m%s@%s\033[0m:\033[36m%s\033[0m$ "%(USERNAME,socket.gethostname(),PWD)).split()
 		try:
 			if command[0] == "print":
 				for i in range(1,len(command)):
@@ -76,7 +78,7 @@ def main():
 			elif(command[0] == "mkdir" or
 				 command[0] == "md" #新建文件夹
 			):
-				#if command[2] == "--absolute-path": newdir(command[1])
+				if command[3] == "--absolute-path": newdir(command[2],command[1])
 				newdir(PWD,command[1])
 			else:
 				print("Unknown command")
