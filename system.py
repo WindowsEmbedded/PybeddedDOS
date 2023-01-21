@@ -13,7 +13,7 @@ import sys
 import json
 import getpass
 import socket
-VER = "0.2.7-beta1"
+VER = "0.2.8-beta2"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 dirs = { 
@@ -92,6 +92,9 @@ def IsaDirectory(filename) -> bool: return '/' in filename #判断是否为文�
 
 def newdir(pathname=str(),dirname=str()):
 	global dirs
+	if dirname == "..":
+	    print("")
+	    return
 	dires = GetDirectoryContents(pathname)
 	dires["%s/"%dirname] = {} #新建空字典
 	with open("path.json",'w') as f: #写入path.json
@@ -109,6 +112,23 @@ def deldir(pathname=str(),dirname=str()): #原理和上面的差不多
 		with open("path.json",'w') as f: 
 			f.write(json.dumps(dirs))
 			f.close()
+
+def ChangePWD(path,name): #改变PWD
+    global dirs
+    global PWD
+    dires = GetDirectoryContents(path)
+    if name != ".." and "%s/"%name not in dires: #检测目录是否存在
+        print("path %s is not found"%name)
+        return
+    chgdir = "/"
+    pwds = PWD.split("/")
+    for i in pwds:
+        if i=="": continue
+        chgdir += "%s/"%i
+    chgdir += "%s/"%name
+    #if name == "..":
+        
+    PWD = chgdir
 
 def main():
 	global VER
@@ -147,6 +167,8 @@ def main():
 			):
 				#if command[3] == "--absoulute-path": deldir(command[2],command[1])
 				deldir(PWD,command[1])
+			elif command[0]=="cd":
+			    ChangePWD(PWD,command[1])
 			else:
 				print("Unknown command")
 		except IndexError:
