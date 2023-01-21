@@ -20,7 +20,9 @@ dirs = {
 	"/": {
 		"system/":{},
 		"usr/": {
-			"fakeroot/":""
+			"fakeroot/":{
+				"home/":{}
+			}
 		},
 		"bin/":{}
 	}
@@ -158,7 +160,7 @@ def init():
 		with open("path.json") as f:
 			dirs = json.load(f)
 			usrname = input("Username: ")
-			if "%s/"%usrname in dirs['/']['usr/'] and "password" in dirs['/']['usr/']['%s/'%usrname]:
+			if "%s/"%usrname in dirs['/']['usr/']:
 				#pswd = getpass.getpass("Password: ")
 				#if pswd == Decrypt(dirs['/']['usr/']['%s/'%usrname],26):
 				USERNAME = usrname
