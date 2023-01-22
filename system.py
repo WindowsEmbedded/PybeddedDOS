@@ -122,10 +122,14 @@ def ChangePWD(path,name): #改变PWD
         return
     chgdir = "/"
     pwds = PWD.split("/")
+    if name == "..":
+        pwds.pop()
+        pwds.pop()
     for i in pwds:
         if i=="": continue
         chgdir += "%s/"%i
-    chgdir += "%s/"%name
+    if name != "..":
+        chgdir += "%s/"%name
     #if name == "..":
         
     PWD = chgdir
