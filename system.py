@@ -13,7 +13,7 @@ import sys
 import json
 import getpass
 import socket
-VER = "0.3-rc1"
+VER = "0.3.1-rc1"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 dirs = { 
@@ -188,9 +188,11 @@ def init():
 			if "%s/"%usrname in dirs['/']['usr/']:
 				#pswd = getpass.getpass("Password: ")
 				#if pswd == Decrypt(dirs['/']['usr/']['%s/'%usrname],26):
-				USERNAME = usrname
-				PWD = "/usr/%s/home/"%USERNAME
-				return
+				if "home/" in dirs['/']['usr/']["%s/"%usrname]: #检测home文件夹是否存在，不存在时执行ls会报错
+				    USERNAME = usrname
+				    PWD = "/usr/%s/home/"%USERNAME
+				    return
+				else: print("home path is not found")
 				#else: print("Wrong password")
 			else: print("%s's path is not found"%usrname)
 			sys.exit(0xff)
