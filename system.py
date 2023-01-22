@@ -13,7 +13,7 @@ import sys
 import json
 import getpass
 import socket
-VER = "0.2.8-beta2"
+VER = "0.3-rc1"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 dirs = { 
@@ -123,13 +123,12 @@ def ChangePWD(path,name): #改变PWD
     chgdir = "/"
     pwds = PWD.split("/")
     if name == "..":
-        pwds.pop()
-        pwds.pop()
+        pwds.pop() 
+        pwds.pop() #最后一个是空，删两次
     for i in pwds:
         if i=="": continue
         chgdir += "%s/"%i
-    if name != "..":
-        chgdir += "%s/"%name
+    if name != "..": chgdir += "%s/"%name #不加这句会显示PWD/../
     #if name == "..":
         
     PWD = chgdir
@@ -157,8 +156,8 @@ def main():
 				if command[1]=="$VER": VER=command[2]
 				else:print("Isn't a var")
 			elif command[0] == "ls":
-				for key,value in GetDirectoryContents(PWD).items():
-					if '/' in key: print("\033[34m%s\033[0m"%key.replace("/",""),end="	")
+				for key,value in sorted(GetDirectoryContents(PWD).items(),key=lambda x:x[0]):
+					if '/' in key: print("\033[34m%s\033[0m"%key.replace("/",""),end="    ")
 					else: print(key,end="	")
 				print()
 			elif(command[0] == "mkdir" or
