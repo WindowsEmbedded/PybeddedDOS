@@ -28,55 +28,6 @@ dirs = {
 	}
 }
 
-def Encrypt(text,key):
-	LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ" #大写字母表
-	letters=LETTERS.lower()              #小写字母表
-	EncryptedText = ""                   #加密后的文本
-	for char in text: #遍历text
-		if char in LETTERS: #是大写
-			num = LETTERS.find(char)
-			num += key
-			if num >= len(LETTERS): #大于字母表长度
-				num -= len(LETTERS)
-			elif num < 0:
-				num += len(LETTERS)
-			EncryptedText += LETTERS[num]
-		elif char in letters: #是小写
-			num = letters.find(char)
-			num += key
-			if num >= len(letters): #大于字母表长度
-				num -= len(letters)
-			elif num < 0:
-				num += len(letters)
-			EncryptedText += letters[num]
-		else:
-			EncryptedText += char #拼接字母以外的字符
-	return EncryptedText
-
-def Decrypt(password,key):
-	LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ" #大写字母表
-	letters=LETTERS.lower()              #小写字母表
-	DecryptedText = ""                   #加密后的文本
-	for char in password:
-		if char in LETTERS: #是大写
-			num = LETTERS.find(char)
-			num -= key
-			if num >= len(LETTERS): #大于字母表长度
-				num -= len(LETTERS)
-			elif num < 0:
-				num += len(LETTERS)
-			DecryptedText += LETTERS[num]
-		elif char in letters: #是小写
-			num = letters.find(char)
-			num -= key
-			if num >= len(letters): #大于字母表长度
-				num -= len(letters)
-			elif num < 0:
-				num += len(letters)
-			DecryptedText += letters[num]
-		else:
-			DecryptedText += char #拼接字母以外的字符
-	return DecryptedText
 
 def GetDirectoryContents(dirname=str()) -> dict: #获取某目录的文件
 	global dirs
@@ -93,8 +44,8 @@ def IsaDirectory(filename) -> bool: return '/' in filename #判断是否为文�
 def newdir(pathname=str(),dirname=str()):
 	global dirs
 	if dirname == "..":
-	    print("")
-	    return
+		print("")
+		return
 	dires = GetDirectoryContents(pathname)
 	dires["%s/"%dirname] = {} #新建空字典
 	with open("path.json",'w') as f: #写入path.json
@@ -114,24 +65,24 @@ def deldir(pathname=str(),dirname=str()): #原理和上面的差不多
 			f.close()
 
 def ChangePWD(path,name): #改变PWD
-    global dirs
-    global PWD
-    dires = GetDirectoryContents(path)
-    if name != ".." and "%s/"%name not in dires: #检测目录是否存在
-        print("path %s is not found"%name)
-        return
-    chgdir = "/"
-    pwds = PWD.split("/")
-    if name == "..":
-        pwds.pop() 
-        pwds.pop() #最后一个是空，删两次
-    for i in pwds:
-        if i=="": continue
-        chgdir += "%s/"%i
-    if name != "..": chgdir += "%s/"%name #不加这句会显示PWD/../
-    #if name == "..":
-        
-    PWD = chgdir
+	global dirs
+	global PWD
+	dires = GetDirectoryContents(path)
+	if name != ".." and "%s/"%name not in dires: #检测目录是否存在
+		print("path %s is not found"%name)
+		return
+	chgdir = "/"
+	pwds = PWD.split("/")
+	if name == "..":
+		pwds.pop() 
+		pwds.pop() #最后一个是空，删两次
+	for i in pwds:
+		if i=="": continue
+		chgdir += "%s/"%i
+	if name != "..": chgdir += "%s/"%name #不加这句会显示PWD/../
+	#if name == "..":
+		
+	PWD = chgdir
 
 def main():
 	global VER
@@ -171,7 +122,7 @@ def main():
 				#if command[3] == "--absoulute-path": deldir(command[2],command[1])
 				deldir(PWD,command[1])
 			elif command[0]=="cd":
-			    ChangePWD(PWD,command[1])
+				ChangePWD(PWD,command[1])
 			else:
 				print("Unknown command")
 		except IndexError:
@@ -189,9 +140,9 @@ def init():
 				#pswd = getpass.getpass("Password: ")
 				#if pswd == Decrypt(dirs['/']['usr/']['%s/'%usrname],26):
 				if "home/" in dirs['/']['usr/']["%s/"%usrname]: #检测home文件夹是否存在，不存在时执行ls会报错
-				    USERNAME = usrname
-				    PWD = "/usr/%s/home/"%USERNAME
-				    return
+					USERNAME = usrname
+					PWD = "/usr/%s/home/"%USERNAME
+					return
 				else: print("home path is not found")
 				#else: print("Wrong password")
 			else: print("%s's path is not found"%usrname)
