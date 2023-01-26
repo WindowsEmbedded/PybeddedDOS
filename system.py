@@ -13,7 +13,7 @@ import sys
 import json
 import getpass
 import socket
-VER = "0.3.1-rc1"
+VER = "0.3.2-rc2"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 dirs = { 
@@ -84,6 +84,27 @@ def ChangePWD(path,name): #改变PWD
 		
 	PWD = chgdir
 
+def NewFile(filename,path):
+	global dirs
+	if filename == "..":print("");return
+	if '/' in filename:print("");return
+	dires = GetDirectoryContents(path)
+	dires[filename] = "" #新建空字符串
+	with open("path.json",'w') as f: #写入path.json
+		f.write(json.dumps(dirs))
+		f.close()
+
+def ReadFile(filename,path):
+	global dirs
+	if '/' in filename: print();return #判断要读的是不是文件夹
+	dires = GetDirectoryContents(path)
+	if filename not in dires.keys(): #判断要读的文件是否存在
+		print("%s is not found"%filename)
+		return
+	print(dires[filename])
+
+
+
 def main():
 	global VER
 	global PWD
@@ -123,6 +144,10 @@ def main():
 				deldir(PWD,command[1])
 			elif command[0]=="cd":
 				ChangePWD(PWD,command[1])
+			elif command[0] == "touch": #新建文件/清空文件内容
+				NewFile(command[1],PWD)
+			elif command[0] == "cat": #读取文件内容
+				ReadFile(command[1],PWD)
 			else:
 				print("Unknown command")
 		except IndexError:
