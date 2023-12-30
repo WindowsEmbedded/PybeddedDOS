@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 	Exit Status Code				Description
 	0x0(0)								  无异常
@@ -102,8 +103,31 @@ def ReadFile(filename,path):
 		print("%s is not found"%filename)
 		return
 	print(dires[filename])
+def WriteFile(filename,path,content):
+	global dirs
+	if '/' in filename: print();return
+	dires = GetDirectoryContents(path)
+	dires[filename] = content
+	with open("path.json",'w') as f:
+		f.write(json.dumps(dirs))
+		f.close()
 
-
+def CreateUser(username):
+	global dirs
+	if username == "..":
+		print("Username '..' is not vaild")
+		return
+	dires = GetDirectoryContents("/usr")
+	dires["%s/"%username] = {}
+	dires["%s/"%username]["home/"] = {} #添加home目录
+	with open("path.json",'w') as f: #写入path.json
+		f.write(json.dumps(dirs))
+		f.close()
+	
+def SwitchUser(username):
+	global USERNAME
+	USERNAME = username
+	
 
 def main():
 	global VER
@@ -148,6 +172,13 @@ def main():
 				NewFile(command[1],PWD)
 			elif command[0] == "cat": #读取文件内容
 				ReadFile(command[1],PWD)
+			elif command[0] == "newuser": #新建用户
+				CreateUser(command[1])
+			elif command[0] == "su": #切换用户
+				SwitchUser(command[1])
+			elif command[0] == "write": #写入
+				if command[1] in GetDirectoryContents(PWD).keys():
+					WriteFile(command[1],PWD,command[2])
 			else:
 				print("Unknown command")
 		except IndexError:
