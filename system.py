@@ -14,12 +14,19 @@ import sys
 import json
 import getpass
 import socket
-VER = "0.3.2-rc2"
+import rpy
+VER = "0.5"
 USERNAME = "root"
 PWD = "/usr/%s/home"
+var = {}
+s = socket.socket()
 dirs = { 
 	"/": {
-		"system/":{},
+		"system/":{
+			"sysrc":"""
+
+"""
+		},
 		"usr/": {
 			"fakeroot/":{
 				"home/":{}
@@ -41,6 +48,17 @@ def GetDirectoryContents(dirname=str()) -> dict: #获取某目录的文件
 	return dictdires
 
 def IsaDirectory(filename) -> bool: return '/' in filename #判断是否为文件夹 
+def getPathAndFilename(filename): #return:path,filename
+	array = ["",""]
+	array[1] = filename.split('/')[-1]
+	array[0] = filename.strip("/%s"%array[1])
+	return array
+def IsaDirectory_t(filename):
+	try:
+		GetDirectoryContents(filename)
+	except Exception:
+		return False
+	return True
 
 def newdir(pathname=str(),dirname=str()):
 	global dirs
@@ -102,7 +120,7 @@ def ReadFile(filename,path):
 	if filename not in dires.keys(): #判断要读的文件是否存在
 		print("%s is not found"%filename)
 		return
-	print(dires[filename])
+	return dires[filename]
 def WriteFile(filename,path,content):
 	global dirs
 	if '/' in filename: print();return
@@ -127,20 +145,42 @@ def CreateUser(username):
 def SwitchUser(username):
 	global USERNAME
 	USERNAME = username
-	
+
+def setenv(varname,value):
+	try:
+		var[varname] = value
+	except Exception as e:
+		print(e)
+def getenv(varname):
+	return var[varname]
+def replaceEnv(command):
+	varList = []
+	dflag = 0
+	bflag = 0
+	varname = ""
+	for i in range(len(command)):
+		for j in range(len(command[i])):
+			if bflag == 1 and dflag == 1 and command[i][j] != '}':varname += command[i][j]
+			if command[i][j] == '$':dflag = 1
+			if command[i][j] == '{' and dflag == 1:bflag = 1
+			if command[i][j] == '}':dflag == 0;bflag == 0;varList.append(varname);varname = ''
+			
+		for k in varList:
+			command[i] = command[i].replace("${%s}"%k,var[k])
+		else:
+			varList.clear()
+	return command
 
 def main():
 	global VER
 	global PWD
-	while True: #死循环
+	while True: 
 		command = input("\033[32m%s@%s\033[0m:\033[36m%s\033[0m$ "%(USERNAME,socket.gethostname(),PWD)).split()
 		try:
+			command = replaceEnv(command)
 			if command[0] == "print":
 				for i in range(1,len(command)):
-					print(
-						command[i].replace("$VER",VER) ,
-						end=" "
-					)
+					print(command[i],end='')
 				else:
 					print() #打印换行
 			elif(command[0] == "exit" or
@@ -149,8 +189,10 @@ def main():
 			):
 				exit(0)
 			elif command[0] == "var":
-				if command[1]=="$VER": VER=command[2]
-				else:print("Isn't a var")
+				if len(command) < 3:
+					print(var)
+				else:
+					setenv(command[1],command[2])
 			elif command[0] == "ls":
 				for key,value in sorted(GetDirectoryContents(PWD).items(),key=lambda x:x[0]):
 					if '/' in key: print("\033[34m%s\033[0m"%key.replace("/",""),end="    ")
@@ -171,7 +213,7 @@ def main():
 			elif command[0] == "touch": #新建文件/清空文件内容
 				NewFile(command[1],PWD)
 			elif command[0] == "cat": #读取文件内容
-				ReadFile(command[1],PWD)
+				print(ReadFile(command[1],PWD))
 			elif command[0] == "newuser": #新建用户
 				CreateUser(command[1])
 			elif command[0] == "su": #切换用户
@@ -179,10 +221,16 @@ def main():
 			elif command[0] == "write": #写入
 				if command[1] in GetDirectoryContents(PWD).keys():
 					WriteFile(command[1],PWD,command[2])
+			elif command[0] == "importFile":
+				with open(command[1],'r') as f:
+					WriteFile(command[2],PWD,f.read())
+					f.close()
+			elif command[0] == "exec":
+				rpy.run(ReadFile(command[1],PWD))
 			else:
 				print("Unknown command")
 		except IndexError:
-			print(end="")
+			print("")
 
 def init():
 	global dirs
@@ -192,7 +240,7 @@ def init():
 		with open("path.json") as f:
 			dirs = json.load(f)
 			usrname = input("Username: ")
-			if "%s/"%usrname in dirs['/']['usr/']:
+			if ("%s/"%usrname in dirs['/']['usr/']):
 				#pswd = getpass.getpass("Password: ")
 				#if pswd == Decrypt(dirs['/']['usr/']['%s/'%usrname],26):
 				if "home/" in dirs['/']['usr/']["%s/"%usrname]: #检测home文件夹是否存在，不存在时执行ls会报错

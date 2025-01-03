@@ -138,4 +138,5 @@ dmypy.json
 cython_debug/
 
 #Other
-path.json
+*.json
+*.txt
