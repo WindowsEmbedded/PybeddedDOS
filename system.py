@@ -19,15 +19,27 @@ VER = "0.5"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 var = {}
+aliases = {}
 s = socket.socket()
 dirs = { 
 	"/": {
 		"system/":{
 			"sysrc":"""
-
+import git,sys
+system.setenv("COMMIT_ID",str(git.Repo("./").commit()))
+system.setenv("VERSION",system.VER)
+system.setenv("PATH","/bin:/usr/bin")
+print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"\
+	%(\
+		system.getenv("VERSION"),\
+		str(git.Repo("./").tags[-1]),\
+		system.getenv("COMMIT_ID"),sys.version
+	)
+)
 """
 		},
 		"usr/": {
+			"bin":{},
 			"fakeroot/":{
 				"home/":{}
 			}
@@ -170,73 +182,93 @@ def replaceEnv(command):
 		else:
 			varList.clear()
 	return command
-
+def interrupt(command:list[str]):
+	try:
+		command = replaceEnv(command)
+		if command[0] == "print":
+			for i in range(1,len(command)):
+				print(command[i],end='')
+			else:
+				print() #打印换行
+		elif(command[0] == "exit" or
+			 command[0] == "shutdown" or
+			 command[0] == "quit"
+		):
+			exit(0)
+		elif command[0] == "var":
+			if len(command) < 3:
+				print(var)
+			else:
+				setenv(command[1],command[2])
+		elif command[0] == "ls":
+			for key,value in sorted(GetDirectoryContents(PWD).items(),key=lambda x:x[0]):
+				if '/' in key: print("\033[34m%s\033[0m"%key.replace("/",""),end="    ")
+				else: print(key,end="	")
+			print()
+		elif(command[0] == "mkdir" or
+			 command[0] == "md" #新建文件夹
+		):
+			#if command[3] == "--absolute-path": newdir(command[2],command[1])
+			newdir(PWD,command[1])
+		elif(command[0] == "rmdir" or
+			 command[0] == "rd" #删除文件夹
+		):
+			#if command[3] == "--absoulute-path": deldir(command[2],command[1])
+			deldir(PWD,command[1])
+		elif command[0]=="cd":
+			ChangePWD(PWD,command[1])
+		elif command[0] == "touch": #新建文件/清空文件内容
+			NewFile(command[1],PWD)
+		elif command[0] == "cat": #读取文件内容
+			print(ReadFile(command[1],PWD))
+		elif command[0] == "newuser": #新建用户
+			CreateUser(command[1])
+		elif command[0] == "su": #切换用户
+			SwitchUser(command[1])
+		elif command[0] == "write": #写入
+			if command[1] in GetDirectoryContents(PWD).keys():
+				WriteFile(command[1],PWD,command[2])
+		elif command[0] == "importFile":
+			with open(command[1],'r') as f:
+				WriteFile(command[2],PWD,f.read())
+				f.close()
+		elif command[0] == "exec":
+			rpy.run(ReadFile(command[1],PWD))
+		elif command[0] == "alias":
+			aliases[command[1]] = command[2]
+		else:
+			if command[0] in aliases.keys():
+				command[0] = aliases[command[0]]
+				interrupt(command)
+			else:
+				print("Unknown command")
+	except IndexError:
+			print("")
 def main():
 	global VER
 	global PWD
 	while True: 
 		command = input("\033[32m%s@%s\033[0m:\033[36m%s\033[0m$ "%(USERNAME,socket.gethostname(),PWD)).split()
-		try:
-			command = replaceEnv(command)
-			if command[0] == "print":
-				for i in range(1,len(command)):
-					print(command[i],end='')
-				else:
-					print() #打印换行
-			elif(command[0] == "exit" or
-				 command[0] == "shutdown" or
-				 command[0] == "quit"
-			):
-				exit(0)
-			elif command[0] == "var":
-				if len(command) < 3:
-					print(var)
-				else:
-					setenv(command[1],command[2])
-			elif command[0] == "ls":
-				for key,value in sorted(GetDirectoryContents(PWD).items(),key=lambda x:x[0]):
-					if '/' in key: print("\033[34m%s\033[0m"%key.replace("/",""),end="    ")
-					else: print(key,end="	")
-				print()
-			elif(command[0] == "mkdir" or
-				 command[0] == "md" #新建文件夹
-			):
-				#if command[3] == "--absolute-path": newdir(command[2],command[1])
-				newdir(PWD,command[1])
-			elif(command[0] == "rmdir" or
-				 command[0] == "rd" #删除文件夹
-			):
-				#if command[3] == "--absoulute-path": deldir(command[2],command[1])
-				deldir(PWD,command[1])
-			elif command[0]=="cd":
-				ChangePWD(PWD,command[1])
-			elif command[0] == "touch": #新建文件/清空文件内容
-				NewFile(command[1],PWD)
-			elif command[0] == "cat": #读取文件内容
-				print(ReadFile(command[1],PWD))
-			elif command[0] == "newuser": #新建用户
-				CreateUser(command[1])
-			elif command[0] == "su": #切换用户
-				SwitchUser(command[1])
-			elif command[0] == "write": #写入
-				if command[1] in GetDirectoryContents(PWD).keys():
-					WriteFile(command[1],PWD,command[2])
-			elif command[0] == "importFile":
-				with open(command[1],'r') as f:
-					WriteFile(command[2],PWD,f.read())
-					f.close()
-			elif command[0] == "exec":
-				rpy.run(ReadFile(command[1],PWD))
-			else:
-				print("Unknown command")
-		except IndexError:
-			print("")
+		while True:
+			interrupt(command)
 
 def init():
 	global dirs
 	global USERNAME
 	global PWD
 	try:
+		if 'sysrc' in str(GetDirectoryContents('/system').keys())  :
+			rpy.run(ReadFile('sysrc','/system'))
+		else:
+			print("WARN: sysrc is not found")
+			WriteFile('sysrc','/system',"""
+import git
+system.setenv("COMMIT_ID",str(git.Repo("./").commit()))
+system.setenv("VERSION",system.VER)
+system.setenv("PATH","/bin:/usr/bin")
+print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"%(system.getenv("VERSION"),str(git.Repo("./").tags[-1]),system.getenv("COMMIT_ID"),sys.version)))
+
+""")
 		with open("path.json") as f:
 			dirs = json.load(f)
 			usrname = input("Username: ")

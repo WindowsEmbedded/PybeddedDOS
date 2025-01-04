@@ -25,7 +25,7 @@ def run(script):
         globals['exitstatus'] = e
     except Exception as e:
         print(e)
-    
+
 
 gglobals = {
     "VER":system.VER,
