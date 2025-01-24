@@ -1,4 +1,5 @@
-import system
+
+
 gglobals = {}
 def get_shebang(script):
     if script[0] == "#" and script[1] == '!':
@@ -26,7 +27,7 @@ def run(script):
     except Exception as e:
         print(e)
 
-
+import src.system as system
 gglobals = {
     "VER":system.VER,
     "USERNAME":system.USERNAME,

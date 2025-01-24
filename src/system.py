@@ -14,7 +14,7 @@ import sys
 import json
 import getpass
 import socket
-import rpy
+
 VER = "0.5"
 USERNAME = "root"
 PWD = "/usr/%s/home"
@@ -227,7 +227,9 @@ def interrupt(command:list[str]):
 					WriteFile(command[2],PWD,f.read())
 					f.close()
 			case "exec":
+				from src import rpy
 				rpy.run(ReadFile(command[1],PWD))
+				
 			case "alias":
 				aliases[command[1]] = command[2]
 			case _:
@@ -290,8 +292,7 @@ print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"%(system.getenv("VERSI
 			f.close()
 		init()
 
-
-if __name__ == "__main__":
+def start():
 	if sys.version_info <= (3,11):
 		print("FATAL: Your python is too old[Require 3.11+]")
 		exit(255)
@@ -303,3 +304,6 @@ if __name__ == "__main__":
 		sys.exit(0x60)
 	except MemoryError:
 		sys.exit(0x61)
+if __name__ == "__main__":
+	start()
+
