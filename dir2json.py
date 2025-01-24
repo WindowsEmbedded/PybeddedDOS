@@ -13,4 +13,3 @@ def dir2json(dir):
     returns = dirs['/']
     dir2json_(dir,returns)
     return {'/':returns}
-print(dir2json("./"))
