@@ -15,7 +15,7 @@ import json
 import getpass
 import socket
 
-VER = "0.5"
+VER = "0.51"
 USERNAME = "root"
 PWD = "/usr/%s/home"
 var = {}
@@ -215,7 +215,7 @@ def interrupt(command:list[str]):
 				NewFile(command[1],PWD)
 			case "cat": #读取文件内容
 				print(ReadFile(command[1],PWD))
-			case "newuser": #新建用户
+			case "useradd": #新建用户
 				CreateUser(command[1])
 			case "su": #切换用户
 				SwitchUser(command[1])
