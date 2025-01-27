@@ -18,6 +18,7 @@ import socket
 VER = "0.51"
 USERNAME = "root"
 PWD = "/usr/%s/home"
+fullversion = "Pybedded-DOS v0.51/tag :"
 var = {}
 aliases = {}
 s = socket.socket()
@@ -26,10 +27,10 @@ dirs = {
 		"system/":{
 			"sysrc":"""
 import git,sys
-system.setenv("COMMIT_ID",str(git.Repo("./").commit()))
+system.setenv("COMMIT_ID",str(git.Repo("./").commit()[0:7]))
 system.setenv("VERSION",system.VER)
 system.setenv("PATH","/bin:/usr/bin")
-print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"\
+print("Pybedded-DOS v%s tags/%s:%s - Running on Python(%s)"\
 	%(\
 		system.getenv("VERSION"),\
 		str(git.Repo("./").tags[-1]),\
@@ -40,7 +41,7 @@ print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"\
 		},
 		"usr/": {
 			"bin":{},
-			"fakeroot/":{
+			"home/":{
 				"home/":{}
 			}
 		},
@@ -48,6 +49,15 @@ print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"\
 	}
 }
 
+def getfullver():
+	global fullversion
+	import git
+	fullversion = "Pybedded-DOS v%s tags/%s:%s"%(
+		VER,
+		str(git.Repo("./").tags[-1]),
+		str(git.Repo("./").commit())[0:7]
+	)
+	return fullversion
 
 def GetDirectoryContents(dirname=str()) -> dict: #获取某目录的文件
 	global dirs
@@ -182,6 +192,7 @@ def replaceEnv(command):
 		else:
 			varList.clear()
 	return command
+import src.rpy as rpy
 def interrupt(command:list[str]):
 	try:
 		command = replaceEnv(command)
@@ -270,16 +281,16 @@ print("Pybedded-DOS v%s/tag %s:%s - Running on Python(%s)"%(system.getenv("VERSI
 		with open("path.json") as f:
 			#dirs = json.load(f)
 			usrname = input("Username: ")
-			if ("%s/"%usrname in dirs['/']['usr/']):
+			if ("home" in dirs['/']['usr/']):
 				#pswd = getpass.getpass("Password: ")
 				#if pswd == Decrypt(dirs['/']['usr/']['%s/'%usrname],26):
-				if "home/" in dirs['/']['usr/']["%s/"%usrname]: #检测home文件夹是否存在，不存在时执行ls会报错
+				if "%s/"%usrname in dirs['/']['usr/']["home"]: #检测home文件夹是否存在，不存在时执行ls会报错
 					USERNAME = usrname
-					PWD = "/usr/%s/home/"%USERNAME
+					PWD = "/usr/home/%s/"%USERNAME
 					return
 				else: print("home path is not found")
 				#else: print("Wrong password")
-			else: print("%s's path is not found"%usrname)
+			else: print("home is not found")
 			sys.exit(0xff)
 			#except SystemExit: pass
 	except PermissionError:
